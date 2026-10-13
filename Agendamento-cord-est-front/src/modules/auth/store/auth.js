@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-// Lista de usuários simulados para autenticação (mock)
+// Lista de usuários simulados para autenticação (mock - estático, sem backend)
 export const mockUsers = [
   { id: 1, nome: 'Maria Silva', email: 'aluno@teste.com', senha: '123456', tipo: 'aluno' },
   { id: 2, nome: 'João Santos', email: 'coord@teste.com', senha: '123456', tipo: 'coordenador' }

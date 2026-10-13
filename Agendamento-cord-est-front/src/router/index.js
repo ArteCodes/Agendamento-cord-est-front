@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import LoginView from '@/views/LoginView.vue'
+import { useAuthStore } from '@/modules/auth/store/auth'
+import AuthCreate from '@/modules/auth/views/Create.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,31 +8,43 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: AuthCreate,
       meta: { requiresAuth: false }
     },
     {
       path: '/agendamentos',
       name: 'agendamentos',
-      component: () => import('@/views/AgendamentosAlunoView.vue'),
+      component: () => import('@/modules/appointment/views/List.vue'),
       meta: { requiresAuth: true, role: 'aluno' }
     },
     {
       path: '/agendamentos/criar',
       name: 'criar-agendamento',
-      component: () => import('@/views/CriarAgendamentoView.vue'),
+      component: () => import('@/modules/appointment/views/Create.vue'),
+      meta: { requiresAuth: true, role: 'aluno' }
+    },
+    {
+      path: '/agendamentos/:id',
+      name: 'detalhe-agendamento',
+      component: () => import('@/modules/appointment/views/Show.vue'),
       meta: { requiresAuth: true, role: 'aluno' }
     },
     {
       path: '/gestao',
       name: 'gestao',
-      component: () => import('@/views/GestaoView.vue'),
+      component: () => import('@/modules/management/views/List.vue'),
+      meta: { requiresAuth: true, role: 'coordenador' }
+    },
+    {
+      path: '/gestao/:id',
+      name: 'detalhe-gestao',
+      component: () => import('@/modules/management/views/Show.vue'),
       meta: { requiresAuth: true, role: 'coordenador' }
     },
     {
       path: '/calendario',
       name: 'calendario',
-      component: () => import('@/views/CalendarioView.vue'),
+      component: () => import('@/modules/calendar/views/List.vue'),
       meta: { requiresAuth: true, role: 'coordenador' }
     },
     {

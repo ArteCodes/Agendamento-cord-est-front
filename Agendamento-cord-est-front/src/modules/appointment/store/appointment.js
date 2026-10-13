@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export const useAgendamentosStore = defineStore('agendamentos', {
+export const useAppointmentStore = defineStore('appointment', {
   state: () => ({
     agendamentos: [
       {
@@ -130,11 +130,11 @@ export const useAgendamentosStore = defineStore('agendamentos', {
     },
 
     /**
-     * Adiciona um novo agendamento.
+     * Adiciona um novo agendamento (estático, sem backend).
      */
     criarAgendamento(novoAgendamento) {
-      const novoId = this.agendamentos.length > 0 
-        ? Math.max(...this.agendamentos.map((a) => a.id)) + 1 
+      const novoId = this.agendamentos.length > 0
+        ? Math.max(...this.agendamentos.map((a) => a.id)) + 1
         : 1
 
       this.agendamentos.push({
@@ -145,3 +145,6 @@ export const useAgendamentosStore = defineStore('agendamentos', {
     }
   }
 })
+
+// Alias para compatibilidade com código antigo (stores/agendamentos.js)
+export const useAgendamentosStore = useAppointmentStore
