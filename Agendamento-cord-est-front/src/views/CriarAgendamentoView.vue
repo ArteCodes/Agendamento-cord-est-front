@@ -1,9 +1,42 @@
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/auth'
+import { useAgendamentosStore } from '@/stores/agendamentos'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const agendamentosStore = useAgendamentosStore()
+
+const { userName, user } = storeToRefs(authStore)
+
+const tipo = ref('Consulta Psicológica')
+const data = ref('')
+const horario = ref('')
+const local = ref('Sala de Atendimento')
+const descricao = ref('')
 
 function voltar() {
+  router.push('/agendamentos')
+}
+
+function handleSalvar() {
+  if (!tipo.value || !data.value || !horario.value) {
+    alert('Por favor, preencha tipo, data e horário.')
+    return
+  }
+
+  agendamentosStore.criarAgendamento({
+    aluno: userName.value || 'Aluno',
+    alunoEmail: user.value?.email || 'aluno@teste.com',
+    nome: tipo.value,
+    data: data.value,
+    horario: horario.value,
+    local: local.value || 'A definir',
+    descricao: descricao.value
+  })
+
   router.push('/agendamentos')
 }
 </script>
@@ -14,31 +47,35 @@ function voltar() {
       <h1>Criar Novo Agendamento</h1>
       <p class="subtitle">Preencha os dados para agendar um atendimento</p>
 
-      <form @submit.prevent class="form">
+      <form @submit.prevent="handleSalvar" class="form">
         <div class="form-group">
           <label for="tipo">Tipo de Atendimento</label>
-          <select id="tipo" class="input">
-            <option value="">Selecione...</option>
-            <option value="psicologico">Consulta Psicológica</option>
-            <option value="academico">Orientação Acadêmica</option>
-            <option value="social">Atendimento Social</option>
-            <option value="nutricional">Consulta Nutricional</option>
+          <select id="tipo" v-model="tipo" class="input" required>
+            <option value="Consulta Psicológica">Consulta Psicológica</option>
+            <option value="Orientação Acadêmica">Orientação Acadêmica</option>
+            <option value="Atendimento Social">Atendimento Social</option>
+            <option value="Consulta Nutricional">Consulta Nutricional</option>
           </select>
         </div>
 
         <div class="form-group">
           <label for="data">Data</label>
-          <input id="data" type="date" class="input" />
+          <input id="data" v-model="data" type="date" class="input" required />
         </div>
 
         <div class="form-group">
           <label for="horario">Horário</label>
-          <input id="horario" type="time" class="input" />
+          <input id="horario" v-model="horario" type="time" class="input" required />
+        </div>
+
+        <div class="form-group">
+          <label for="local">Local Previsto</label>
+          <input id="local" v-model="local" type="text" class="input" placeholder="Ex: Sala 201 ou Online" />
         </div>
 
         <div class="form-group">
           <label for="descricao">Descrição / Observações</label>
-          <textarea id="descricao" class="input textarea" rows="3" placeholder="Descreva o motivo do agendamento..."></textarea>
+          <textarea id="descricao" v-model="descricao" class="input textarea" rows="3" placeholder="Descreva o motivo do agendamento..."></textarea>
         </div>
 
         <div class="form-actions">

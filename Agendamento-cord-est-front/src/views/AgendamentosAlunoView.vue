@@ -8,13 +8,15 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useAgendamentosStore } from '@/stores/agendamentos'
 
-// Inicialização do roteador e do store de autenticação
+// Inicialização do roteador e dos stores
 const router = useRouter()
 const authStore = useAuthStore()
+const agendamentosStore = useAgendamentosStore()
 
-// Obtém o nome do usuário a partir do store de autenticação
-const { userName } = storeToRefs(authStore)
+// Obtém o nome e dados do usuário a partir do store de autenticação
+const { userName, user } = storeToRefs(authStore)
 
 // Estados reativos
 const filtroData = ref('')
@@ -22,52 +24,18 @@ const showModal = ref(false)
 const showDetailsModal = ref(false)
 const selectedAgendamento = ref(null)
 
-// Lista com dados mockados de agendamentos
-const agendamentos = ref([
-  {
-    id: 1,
-    nome: 'Consulta Psicológica',
-    data: '2026-10-15',
-    horario: '14:00',
-    local: 'Sala 201',
-    status: 'Confirmado',
-    descricao: 'Sessão de acompanhamento psicológico'
-  },
-  {
-    id: 2,
-    nome: 'Orientação Acadêmica',
-    data: '2026-10-18',
-    horario: '10:30',
-    local: 'Sala 105',
-    status: 'Pendente',
-    descricao: 'Orientação sobre grade curricular'
-  },
-  {
-    id: 3,
-    nome: 'Atendimento Social',
-    data: '2026-10-20',
-    horario: '09:00',
-    local: 'Sala 302',
-    status: 'Confirmado',
-    descricao: 'Avaliação socioeconômica'
-  },
-  {
-    id: 4,
-    nome: 'Consulta Nutricional',
-    data: '2026-09-10',
-    horario: '11:00',
-    local: 'Sala 108',
-    status: 'Cancelado',
-    descricao: 'Acompanhamento nutricional'
-  }
-])
+// Agendamentos pertencentes ao aluno logado (filtra pelo email do aluno ou mostra os do aluno mockado)
+const agendamentosDoAluno = computed(() => {
+  const email = user.value?.email || 'aluno@teste.com'
+  return agendamentosStore.agendamentosPorAluno(email)
+})
 
 // Computed property para filtrar agendamentos por data caso filtroData esteja preenchido
 const agendamentosFiltrados = computed(() => {
   if (!filtroData.value) {
-    return agendamentos.value
+    return agendamentosDoAluno.value
   }
-  return agendamentos.value.filter((item) => item.data === filtroData.value)
+  return agendamentosDoAluno.value.filter((item) => item.data === filtroData.value)
 })
 
 // Abre modal de confirmação para cancelar o agendamento
@@ -79,10 +47,7 @@ const confirmCancel = (agendamento) => {
 // Cancela o agendamento selecionado alterando seu status para 'Cancelado'
 const cancelAgendamento = () => {
   if (selectedAgendamento.value) {
-    const item = agendamentos.value.find((a) => a.id === selectedAgendamento.value.id)
-    if (item) {
-      item.status = 'Cancelado'
-    }
+    agendamentosStore.cancelarAgendamento(selectedAgendamento.value.id)
   }
   closeModals()
 }

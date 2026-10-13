@@ -27,9 +27,12 @@ function handleLogout() {
         Meus Agendamentos
       </RouterLink>
 
-      <!-- Link só para Coordenador -->
+      <!-- Links só para Coordenador -->
       <RouterLink v-if="isCoordenador" to="/gestao" class="nav-link">
         Gestão
+      </RouterLink>
+      <RouterLink v-if="isCoordenador" to="/calendario" class="nav-link">
+        Calendário
       </RouterLink>
     </div>
 

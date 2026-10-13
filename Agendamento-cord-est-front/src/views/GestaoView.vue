@@ -152,31 +152,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useAgendamentosStore } from '@/stores/agendamentos'
 
 // Acesso à store de autenticação para resgatar dados do coordenador
 const authStore = useAuthStore()
 const { userName } = storeToRefs(authStore)
 
-// Dados simulados de agendamentos de todos os alunos
-const agendamentos = ref([
-  { id: 1, aluno: 'Maria Silva', nome: 'Consulta Psicológica', data: '2026-10-15', horario: '14:00', status: 'Pendente' },
-  { id: 2, aluno: 'Carlos Souza', nome: 'Orientação Acadêmica', data: '2026-10-18', horario: '10:30', status: 'Confirmado' },
-  { id: 3, aluno: 'Ana Lima', nome: 'Atendimento Social', data: '2026-10-20', horario: '09:00', status: 'Pendente' },
-  { id: 4, aluno: 'Pedro Costa', nome: 'Consulta Nutricional', data: '2026-10-22', horario: '11:00', status: 'Pendente' },
-  { id: 5, aluno: 'Maria Silva', nome: 'Orientação Acadêmica', data: '2026-10-25', horario: '15:00', status: 'Confirmado' }
-])
-
-// Propriedades computadas para contagem das estatísticas
-const totalAgendamentos = computed(() => agendamentos.value.length)
-const totalPendentes = computed(() => agendamentos.value.filter(a => a.status === 'Pendente').length)
-const totalConfirmados = computed(() => agendamentos.value.filter(a => a.status === 'Confirmado').length)
+// Acesso à store centralizada de agendamentos
+const agendamentosStore = useAgendamentosStore()
+const { agendamentos, totalAgendamentos, totalPendentes, totalConfirmados } = storeToRefs(agendamentosStore)
 
 // Método para alterar o status do agendamento para Confirmado
 const validarAgendamento = (agendamento) => {
-  agendamento.status = 'Confirmado'
+  agendamentosStore.validarAgendamento(agendamento.id)
 }
 
 // Estados e métodos para exibição dos detalhes em modal

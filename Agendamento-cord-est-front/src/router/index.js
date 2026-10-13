@@ -30,6 +30,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'coordenador' }
     },
     {
+      path: '/calendario',
+      name: 'calendario',
+      component: () => import('@/views/CalendarioView.vue'),
+      meta: { requiresAuth: true, role: 'coordenador' }
+    },
+    {
       // Rota raiz: redireciona para o dashboard correto baseado no role
       path: '/',
       name: 'home',
