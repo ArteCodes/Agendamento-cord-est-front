@@ -1,85 +1,163 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const { isAuthenticated, isAluno, isCoordenador, userName } = storeToRefs(authStore)
+
+function handleLogout() {
+  authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+  <!-- Navbar - só aparece se o usuário estiver autenticado -->
+  <nav v-if="isAuthenticated" class="navbar">
+    <div class="navbar-brand">
+      <span class="navbar-logo">📅</span>
+      <span class="navbar-title">Sistema de Agendamentos</span>
     </div>
-  </header>
 
-  <RouterView />
+    <div class="navbar-links">
+      <!-- Link só para Aluno -->
+      <RouterLink v-if="isAluno" to="/agendamentos" class="nav-link">
+        Meus Agendamentos
+      </RouterLink>
+
+      <!-- Link só para Coordenador -->
+      <RouterLink v-if="isCoordenador" to="/gestao" class="nav-link">
+        Gestão
+      </RouterLink>
+    </div>
+
+    <div class="navbar-user">
+      <span class="user-name">{{ userName }}</span>
+      <span class="user-badge" :class="{ 'badge-aluno': isAluno, 'badge-coord': isCoordenador }">
+        {{ isAluno ? 'Aluno' : 'Coordenador' }}
+      </span>
+      <button class="btn-logout" @click="handleLogout">Sair</button>
+    </div>
+  </nav>
+
+  <main :class="{ 'with-navbar': isAuthenticated }">
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.navbar-logo {
+  font-size: 24px;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.navbar-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+.navbar-links {
+  display: flex;
+  gap: 8px;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+.nav-link {
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-nav a:first-of-type {
-  border: 0;
+.nav-link:hover {
+  background-color: #f0f0f0;
+  color: #333;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+.nav-link.router-link-active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.user-name {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
+.user-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.badge-aluno {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-coord {
+  background-color: #fce4ec;
+  color: #c62828;
+}
+
+.btn-logout {
+  padding: 6px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #f44336;
+  color: #fff;
+  border-color: #f44336;
+}
+
+main {
+  min-height: 100vh;
+}
+
+main.with-navbar {
+  padding-top: 60px;
 }
 </style>
