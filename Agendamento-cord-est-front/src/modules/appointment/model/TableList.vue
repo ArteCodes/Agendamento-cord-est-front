@@ -1,7 +1,7 @@
 <template>
   <main class="cards-grid">
     <div v-if="items.length === 0" class="empty-state">
-      <p>Nenhum agendamento encontrado para a data selecionada.</p>
+      <p>Nenhum agendamento encontrado.</p>
     </div>
 
     <article v-for="agendamento in items" :key="agendamento.id" class="card-agendamento">
@@ -15,6 +15,10 @@
 
       <!-- Informações do Agendamento -->
       <div class="card-info">
+        <div v-if="showAlunoColumn" class="info-row">
+          <span class="info-label">Aluno:</span>
+          <span class="info-value">{{ agendamento.aluno }}</span>
+        </div>
         <div class="info-row">
           <span class="info-label">Data:</span>
           <span class="info-value">{{ formatarData(agendamento.data) }}</span>
@@ -29,9 +33,10 @@
         </div>
       </div>
 
-      <!-- Botões de Ação do Card -->
+      <!-- Botões de Ação do Card (sem Validar na lista: validação só no Show) -->
       <div class="card-actions">
         <button
+          v-if="canCancel"
           type="button"
           class="btn-outline-danger"
           :disabled="agendamento.status === 'Cancelado'"
@@ -49,7 +54,9 @@
 
 <script setup>
 defineProps({
-  items: { type: Array, default: () => [] }
+  items: { type: Array, default: () => [] },
+  showAlunoColumn: { type: Boolean, default: false },
+  canCancel: { type: Boolean, default: true }
 })
 
 defineEmits(['cancel', 'show'])

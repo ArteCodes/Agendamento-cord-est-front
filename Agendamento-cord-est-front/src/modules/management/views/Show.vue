@@ -1,24 +1,35 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/modules/auth/store/auth'
 import { useManagementStore } from '@/modules/management/store/management'
+import { useAppointmentStore } from '@/modules/appointment/store/appointment'
 import FormShow from '@/modules/management/model/FormShow.vue'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const managementStore = useManagementStore()
+const appointmentStore = useAppointmentStore()
+const { user, canValidate } = storeToRefs(authStore)
 const item = computed(() => managementStore.agendamentos.find((a) => String(a.id) === String(route.params.id)))
-const validar = () => { if (item.value) managementStore.validarAgendamento(item.value.id) }
-const voltar = () => router.push('/gestao')
+const podeVer = computed(() => {
+  if (!item.value || !user.value) return false
+  return appointmentStore.visiveisPorFuncao(user.value).some((a) => a.id === item.value.id)
+})
+const podeValidar = computed(() => podeVer.value && canValidate.value && item.value?.status === 'Pendente')
+const validar = () => { if (podeValidar.value) managementStore.validarAgendamento(item.value.id) }
+const voltar = () => router.push('/agendamentos')
 </script>
 <template>
   <div class="show-container">
     <div class="show-card">
       <h1>Detalhes do Agendamento</h1>
-      <FormShow v-if="item" :item="item" />
-      <p v-else class="vazio">Agendamento não encontrado.</p>
+      <FormShow v-if="item && podeVer" :item="item" />
+      <p v-else class="vazio">Agendamento não encontrado ou sem permissão.</p>
       <div class="actions">
-        <button v-if="item && item.status === 'Pendente'" type="button" class="btn-validar" @click="validar">Validar</button>
+        <button v-if="podeValidar" type="button" class="btn-validar" @click="validar">Validar</button>
         <button type="button" class="btn-voltar" @click="voltar">Voltar</button>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { isAuthenticated, isAluno, isCoordenador, userName } = storeToRefs(authStore)
+const { isAuthenticated, isAluno, isCoordenador, isSuporte, userName, userTipo } = storeToRefs(authStore)
 
 function handleLogout() {
   authStore.logout()

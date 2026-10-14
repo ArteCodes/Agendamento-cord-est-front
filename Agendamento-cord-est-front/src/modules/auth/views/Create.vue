@@ -19,10 +19,7 @@ const handleLogin = async () => {
   try {
     const success = await authStore.login(email.value, senha.value)
     if (success) {
-      const tipo = authStore.user?.tipo
-      if (tipo === 'aluno') router.push('/agendamentos')
-      else if (tipo === 'coordenador') router.push('/gestao')
-      else router.push('/agendamentos')
+      router.push('/agendamentos')
     } else {
       errorMsg.value = 'Email ou senha inválidos'
     }

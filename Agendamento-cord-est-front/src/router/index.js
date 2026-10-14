@@ -15,31 +15,31 @@ const router = createRouter({
       path: '/agendamentos',
       name: 'agendamentos',
       component: () => import('@/modules/appointment/views/List.vue'),
-      meta: { requiresAuth: true, role: 'aluno' }
+      meta: { requiresAuth: true }
     },
     {
       path: '/agendamentos/criar',
       name: 'criar-agendamento',
       component: () => import('@/modules/appointment/views/Create.vue'),
-      meta: { requiresAuth: true, role: 'aluno' }
+      meta: { requiresAuth: true, canCreate: true }
     },
     {
       path: '/agendamentos/:id',
       name: 'detalhe-agendamento',
       component: () => import('@/modules/appointment/views/Show.vue'),
-      meta: { requiresAuth: true, role: 'aluno' }
+      meta: { requiresAuth: true }
     },
     {
       path: '/gestao',
       name: 'gestao',
-      component: () => import('@/modules/management/views/List.vue'),
-      meta: { requiresAuth: true, role: 'coordenador' }
+      redirect: '/agendamentos',
+      meta: { requiresAuth: true }
     },
     {
       path: '/gestao/:id',
       name: 'detalhe-gestao',
-      component: () => import('@/modules/management/views/Show.vue'),
-      meta: { requiresAuth: true, role: 'coordenador' }
+      redirect: (to) => `/agendamentos/${to.params.id}`,
+      meta: { requiresAuth: true }
     },
     {
       path: '/calendario',
@@ -48,15 +48,13 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'coordenador' }
     },
     {
-      // Rota raiz: redireciona para o dashboard correto baseado no role
+      // Rota raiz: lista unificada para aluno, coordenador e suporte
       path: '/',
       name: 'home',
       redirect: () => {
         const authStore = useAuthStore()
         if (!authStore.isAuthenticated) return '/login'
-        if (authStore.isAluno) return '/agendamentos'
-        if (authStore.isCoordenador) return '/gestao'
-        return '/login'
+        return '/agendamentos'
       }
     }
   ]
@@ -76,10 +74,9 @@ router.beforeEach((to, from, next) => {
 
   // Se a rota não requer autenticação (ex: login), permite acesso
   if (requiresAuth === false) {
-    // Se já está logado e tenta ir para login, redireciona para o dashboard
+    // Se já está logado e tenta ir para login, redireciona para a lista unificada
     if (to.name === 'login' && authStore.isAuthenticated) {
-      if (authStore.isAluno) return next('/agendamentos')
-      if (authStore.isCoordenador) return next('/gestao')
+      return next('/agendamentos')
     }
     return next()
   }
@@ -89,12 +86,14 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
 
+  // Criação: só aluno ou suporte (coordenador não cria)
+  if (to.meta.canCreate && !authStore.canCreate) {
+    return next('/agendamentos')
+  }
+
   // Se a rota requer um role específico e o tipo do usuário não bate
   if (requiredRole && authStore.userTipo !== requiredRole) {
-    // Redireciona para o dashboard correto do usuário
-    if (authStore.isAluno) return next('/agendamentos')
-    if (authStore.isCoordenador) return next('/gestao')
-    return next('/login')
+    return next('/agendamentos')
   }
 
   // Tudo certo, permite acesso

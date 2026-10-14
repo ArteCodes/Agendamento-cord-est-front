@@ -16,7 +16,14 @@ const updateField = ({ field, value }) => { form[field] = value }
 const voltar = () => router.push('/agendamentos')
 const handleSalvar = () => {
   if (!form.tipo || !form.data || !form.horario) { alert('Por favor, preencha tipo, data e horário.'); return }
-  appointmentStore.criarAgendamento({ aluno: userName.value || 'Aluno', alunoEmail: user.value?.email || 'aluno@teste.com', nome: form.tipo, data: form.data, horario: form.horario, local: form.local || 'A definir', descricao: form.descricao })
+  appointmentStore.criarAgendamento({
+    aluno: userName.value || 'Aluno',
+    alunoEmail: user.value?.email || 'aluno@teste.com',
+    aluno_matricula: user.value?.matricula || null,
+    created_by: user.value?.id ?? null,
+    coordinator_id: 2,
+    nome: form.tipo, data: form.data, horario: form.horario, local: form.local || 'A definir', descricao: form.descricao
+  }, user.value)
   router.push('/agendamentos')
 }
 </script>

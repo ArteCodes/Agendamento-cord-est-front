@@ -10,21 +10,24 @@ import FormShow from '@/modules/appointment/model/FormShow.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 const appointmentStore = useAppointmentStore()
-const { userName, user } = storeToRefs(authStore)
+const { userName, user, isCoordenador, isSuporte, canCreate } = storeToRefs(authStore)
 
 const filtroData = ref('')
 const showModal = ref(false)
 const showDetailsModal = ref(false)
 const selectedAgendamento = ref(null)
 
-const agendamentosDoAluno = computed(() => {
-  const email = user.value?.email || 'aluno@teste.com'
-  return appointmentStore.agendamentosPorAluno(email)
-})
+// Lista unificada por função (IDs):
+// aluno -> created_by/matricula/email próprios | coordenador -> coordinator_id == id | suporte -> created_by == id
+const agendamentosVisiveis = computed(() => appointmentStore.visiveisPorFuncao(user.value))
 const agendamentosFiltrados = computed(() => {
-  if (!filtroData.value) return agendamentosDoAluno.value
-  return agendamentosDoAluno.value.filter((i) => i.data === filtroData.value)
+  if (!filtroData.value) return agendamentosVisiveis.value
+  return agendamentosVisiveis.value.filter((i) => i.data === filtroData.value)
 })
+// Coluna Aluno só faz sentido para quem vê agendamentos de terceiros
+const showAlunoColumn = computed(() => isCoordenador.value || isSuporte.value)
+// Coordenador não cancela pela lista (só valida no Show); aluno/suporte cancelam os próprios
+const canCancel = computed(() => !isCoordenador.value)
 const confirmCancel = (ag) => { selectedAgendamento.value = ag; showModal.value = true }
 const cancelAgendamento = () => {
   if (selectedAgendamento.value) appointmentStore.cancelarAgendamento(selectedAgendamento.value.id)
@@ -33,6 +36,7 @@ const cancelAgendamento = () => {
 const showDetails = (ag) => { selectedAgendamento.value = ag; showDetailsModal.value = true }
 const closeModals = () => { showModal.value = false; showDetailsModal.value = false; selectedAgendamento.value = null }
 const navegarParaCriar = () => router.push('/agendamentos/criar')
+const abrirShow = (ag) => router.push(`/agendamentos/${ag.id}`)
 </script>
 <template>
   <div class="aluno-dashboard">
@@ -46,9 +50,9 @@ const navegarParaCriar = () => router.push('/agendamentos/criar')
         <input id="filtro-data" type="date" v-model="filtroData" class="input-date" />
         <button v-if="filtroData" type="button" class="btn-clear-date" @click="filtroData = ''">Limpar filtro</button>
       </div>
-      <button type="button" class="btn-novo-agendamento" @click="navegarParaCriar">Novo Agendamento</button>
+      <button v-if="canCreate" type="button" class="btn-novo-agendamento" @click="navegarParaCriar">Novo Agendamento</button>
     </section>
-    <TableList :items="agendamentosFiltrados" @cancel="confirmCancel" @show="showDetails" />
+    <TableList :items="agendamentosFiltrados" :show-aluno-column="showAlunoColumn" :can-cancel="canCancel" @cancel="confirmCancel" @show="abrirShow" />
     <div v-if="showModal" class="modal-overlay" @click.self="closeModals">
       <div class="modal-box">
         <h3 class="modal-title">Cancelar Agendamento</h3>

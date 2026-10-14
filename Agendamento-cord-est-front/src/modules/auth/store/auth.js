@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 
 // Lista de usuários simulados para autenticação (mock - estático, sem backend)
 export const mockUsers = [
-  { id: 1, nome: 'Maria Silva', email: 'aluno@teste.com', senha: '123456', tipo: 'aluno' },
-  { id: 2, nome: 'João Santos', email: 'coord@teste.com', senha: '123456', tipo: 'coordenador' }
+  { id: 1, nome: 'Maria Silva', email: 'aluno@teste.com', senha: '123456', tipo: 'aluno', matricula: '2026001' },
+  { id: 2, nome: 'João Santos', email: 'coord@teste.com', senha: '123456', tipo: 'coordenador', matricula: 'C001' },
+  { id: 3, nome: 'Suporte Silva', email: 'suporte@teste.com', senha: '123456', tipo: 'suporte', matricula: 'S001' }
 ]
 
 export const useAuthStore = defineStore('auth', {
@@ -21,6 +22,15 @@ export const useAuthStore = defineStore('auth', {
 
     // Retorna true se o usuário for do tipo 'coordenador'
     isCoordenador: (state) => state.user?.tipo === 'coordenador',
+
+    // Retorna true se o usuário for do tipo 'suporte'
+    isSuporte: (state) => state.user?.tipo === 'suporte',
+
+    // Pode criar agendamentos: aluno ou suporte (coordenador não cria)
+    canCreate: (state) => state.user?.tipo === 'aluno' || state.user?.tipo === 'suporte',
+
+    // Pode validar agendamentos: coordenador ou suporte (validação só no Show)
+    canValidate: (state) => state.user?.tipo === 'coordenador' || state.user?.tipo === 'suporte',
 
     // Retorna o tipo do usuário ('aluno', 'coordenador') ou null se não logado
     userTipo: (state) => (state.user ? state.user.tipo : null),
