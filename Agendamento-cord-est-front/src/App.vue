@@ -31,6 +31,9 @@ function handleLogout() {
       <RouterLink v-if="isCoordenador" to="/gestao" class="nav-link">
         Gestão
       </RouterLink>
+      <RouterLink v-if="isCoordenador" to="/gestao-horarios" class="nav-link">
+        Gestão de Horários
+      </RouterLink>
       <RouterLink v-if="isCoordenador" to="/calendario" class="nav-link">
         Calendário
       </RouterLink>

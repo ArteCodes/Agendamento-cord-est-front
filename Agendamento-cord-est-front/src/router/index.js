@@ -48,6 +48,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'coordenador' }
     },
     {
+      path: '/gestao-horarios',
+      name: 'gestao-horarios',
+      component: () => import('@/modules/schedule/views/List.vue'),
+      meta: { requiresAuth: true, role: 'coordenador' }
+    },
+    {
       // Rota raiz: lista unificada para aluno, coordenador e suporte
       path: '/',
       name: 'home',

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 // Lista de usuários simulados para autenticação (mock - estático, sem backend)
 export const mockUsers = [
   { id: 1, nome: 'Maria Silva', email: 'aluno@teste.com', senha: '123456', tipo: 'aluno', matricula: '2026001' },
-  { id: 2, nome: 'João Santos', email: 'coord@teste.com', senha: '123456', tipo: 'coordenador', matricula: 'C001' },
+  { id: 2, nome: 'João Santos', email: 'coord@teste.com', senha: '123456', tipo: 'coordenador', matricula: 'C001', carga_horaria_semanal: 20 },
   { id: 3, nome: 'Suporte Silva', email: 'suporte@teste.com', senha: '123456', tipo: 'suporte', matricula: 'S001' }
 ]
 
@@ -36,7 +36,15 @@ export const useAuthStore = defineStore('auth', {
     userTipo: (state) => (state.user ? state.user.tipo : null),
 
     // Retorna o nome do usuário autenticado ou string vazia
-    userName: (state) => (state.user ? state.user.nome : '')
+    userName: (state) => (state.user ? state.user.nome : ''),
+
+    // Carga horária semanal do coordenador (fixa, vinda da tabela de coordenadores — não editável na tela).
+    // Fallback 20h para coordenador com sessão antiga sem o campo.
+    cargaHorariaSemanal: (state) => {
+      if (state.user?.carga_horaria_semanal != null) return Number(state.user.carga_horaria_semanal)
+      if (state.user?.tipo === 'coordenador') return 20
+      return 0
+    }
   },
 
   actions: {
